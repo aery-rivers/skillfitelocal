@@ -1,0 +1,139 @@
+pc.script.createLoadingScreen(function (app) {
+    // Create a new link element to preload splash image
+    var splashImage = document.createElement('link');
+    splashImage.rel = 'preload';
+    splashImage.href = 'https://skillfite.io/img/splash_new.jpg';
+    splashImage.as = 'image';
+    document.head.appendChild(splashImage);
+    document.body.style.backgroundColor = "#89CAD0";
+    document.body.style.opacity = '0';
+    document.body.style.transition = 'opacity 0.5s';
+
+    // Preload splash image and fallback on failure
+    const img = new Image();
+    img.src = splashImage.href;
+    img.onload = function() {
+        showSplash();
+        document.body.style.opacity = '1';
+    };
+    img.onerror = function() {
+        console.error("Failed to load splash image. Using fallback.");
+        showSplash();
+    };
+
+    var showSplash = function () {
+        // splash wrapper
+        var wrapper = document.createElement('div');
+        wrapper.id = 'application-splash-wrapper';
+        wrapper.style.backgroundColor = "#89CAD0";
+        document.body.appendChild(wrapper);
+
+        // splash
+        var splash = document.createElement('div');
+        splash.id = 'application-splash';
+        wrapper.appendChild(splash);
+        splash.style.display = 'block';
+        splash.style.width = '100vw';
+        splash.style.height = '100vh';
+        splash.style.backgroundImage = 'url(https://skillfite.io/img/splash_new.jpg)';
+        splash.style.backgroundSize = 'cover';
+        splash.style.backgroundPosition = 'center center';
+        splash.style.backgroundRepeat = 'no-repeat';
+
+        // Logo
+        var logo = document.createElement('img');
+        logo.src = "https://skillfite.io/img/logo.png";
+        splash.appendChild(logo);
+
+        // Progress bar container
+        var container = document.createElement('div');
+        container.id = 'progress-bar-container';
+        splash.appendChild(container);
+
+        var bar = document.createElement('div');
+        bar.id = 'progress-bar';
+        container.appendChild(bar);
+    };
+
+    var hideSplash = function () {
+        const splash = document.getElementById('application-splash-wrapper');
+        if (splash) splash.parentElement.removeChild(splash);
+    };
+
+    var createCss = function () {
+        var css = `
+            #application-splash-wrapper {
+                position: relative;
+                top: 0;
+                left: 0;
+                height: 100%;
+                width: 100%;
+                background-color: #89CAD0;
+            }
+            
+            #application-splash {
+                position: relative;
+                height:100%;
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-color: #89CAD0;
+            }
+
+            #application-splash img {
+                position: absolute;
+                top: 20%;
+                left: 50%;
+                width: 40vw;
+                height: auto;
+                transform: translate(-50%, -50%);
+            }
+
+            #progress-bar-container {
+                position: fixed;
+                top: 42%;
+                left: 50%;
+                margin: 20px 0 0 -20%;
+                height: 30px;
+                width: 40%;
+                background-color: #4B381B;
+                border-radius: 25px;
+            }
+
+            #progress-bar {
+                position: absolute;
+                width: 0%;
+                height: 100%;
+                background-color: #EDBD00;
+                border-radius: 25px;
+            }
+        `;
+
+        var style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = css;
+        document.head.appendChild(style);
+        console.log("Custom loading CSS applied.");
+    };
+
+    createCss();
+
+    function setProgressBar(value) {
+        const bar = document.getElementById('progress-bar');
+        if (bar) {
+            value = Math.min(1, Math.max(0, value));
+            bar.style.width = value * 100 + '%';
+        }
+    }
+
+    app.on('preload:end', function () {
+        app.off('preload:progress');
+    });
+    
+    app.on('preload:progress', (realProgressValue) => {
+        setProgressBar(realProgressValue);
+    });
+    
+    app.on('start', function() {
+        hideSplash();
+    });
+});
