@@ -4,3 +4,23 @@ Erebus, if u see this, don't even worry about it ;)
 
 
 EDIT: actually. A very very buggy server, but we are getting there :P
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- server up, unable to fully function just yet
+- localdev on
