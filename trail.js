@@ -5,6 +5,12 @@ Trail.attributes.add("xoffset", { type: "number", default: -0.8 });
 Trail.attributes.add("yoffset", { type: "number", default: 1 });
 Trail.attributes.add("height", { type: "number", default: 0.4 });
 
+// Spawn validation
+Trail.attributes.add("spawnRadiusX", { type: "number", default: 50 });
+Trail.attributes.add("spawnRadiusZ", { type: "number", default: 50 });
+Trail.attributes.add("spawnCenterX", { type: "number", default: 0 });
+Trail.attributes.add("spawnCenterZ", { type: "number", default: 0 });
+Trail.attributes.add("spawnHeight", { type: "number", default: 5 });
 
 var MAX_VERTICES = 600;
 var VERTEX_SIZE = 4;
@@ -128,6 +134,32 @@ Trail.prototype.reset = function () {
 
 };
 
+// Spawn validation - get safe spawn position
+Trail.prototype.getSpawnPosition = function () {
+    var x = this.spawnCenterX + pc.math.random(-this.spawnRadiusX, this.spawnRadiusX);
+    var z = this.spawnCenterZ + pc.math.random(-this.spawnRadiusZ, this.spawnRadiusZ);
+    var y = this.spawnHeight;
+    
+    console.log('Spawning player at:', x, y, z);
+    return new pc.Vec3(x, y, z);
+};
+
+// Spawn the player at a safe location
+Trail.prototype.spawnPlayer = function (playerEntity) {
+    if (!playerEntity) {
+        console.error('No player entity provided to spawn');
+        return;
+    }
+    
+    var spawnPos = this.getSpawnPosition();
+    playerEntity.setPosition(spawnPos);
+    
+    // Reset rigidbody if it exists
+    if (playerEntity.rigidbody) {
+        playerEntity.rigidbody.linearVelocity = pc.Vec3.ZERO;
+        playerEntity.rigidbody.angularVelocity = pc.Vec3.ZERO;
+    }
+};
 
 Trail.prototype.spawnNewVertices = function () {
     var node = this.entity;
